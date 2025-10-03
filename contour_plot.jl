@@ -4,22 +4,36 @@ objectives : for plotting contour plot with different
             mesh geometry and precision
 """
 
-include("cfd2.jl")
+using Plots
 
-# IMPORTANT! please check step 5 of cfd2.jl file 
-# before proceeding onwards
-
-# delta_x,delta_y ,n and tolerance are defined
-# in mesh_geometry.jl file  please redefine there
-# to get the desired result
-
-# redefined again 
-tolerance = 0.00001
-
-# run experiment 
-experiment!(tolerance)
+function plot_mesh(nodes)
+    points = vec(nodes)
+    x = [p[1] for p in points]
+    y = [p[2] for p in points]
     
-function contourPlot(data)
+    # Get min and max values
+    x_min, x_max = minimum(x), maximum(x)
+    y_min, y_max = minimum(y), maximum(y)
+    
+    s = scatter(x, y, 
+            aspect_ratio=:equal,
+            markersize=4,
+            xlabel="X",
+            ylabel="Y",
+            legend=false,
+            title="Computational Nodes",
+            xticks=[x_min, x_max],
+            yticks=[y_min, y_max],
+            fontfamily="Computer Modern")
+    display(s)
+end
+
+function contour_plot(data)
+    """
+    TODO  
+
+    """
+
     # Get unique coordinates
     x_vals = sort(unique([p[1] for p in data]))
     y_vals = sort(unique([p[2] for p in data]))
@@ -32,7 +46,7 @@ function contourPlot(data)
         temp_matrix[i, j] = point[3]
     end
     
-    # Professional contour plot
+    # contour plot
     c = contourf(x_vals, y_vals, temp_matrix,
             title="Temperature Distribution",
             xlabel="X Coordinate (m)", 
@@ -45,8 +59,28 @@ function contourPlot(data)
             dpi=300,
             linewidth=0,
             fontfamily="Computer Modern")
-    savefig(c,"plot1.png")
+    display(c)
 end
 
-# Usage:
-contourPlot(nodes)
+function plot_convergence(loops_array, tolerance_array)
+    plot(loops_array, tolerance_array,
+         xlabel="Iteration Number",
+         ylabel="Convergence Tolerance",
+         title="Convergence History(logarithmic plot)",
+         yscale=:log10,                    # Log scale for tolerance
+         color=:blue,
+         marker=:square,
+         grid=:true,
+         framestyle=:box,
+         markersize=5,
+         size=(800, 600),
+         fontfamily="Computer Modern",
+         titlefontsize=16,
+         guidefontsize=14,
+         tickfontsize=12,
+         legend=false)
+    
+    # annotation
+    hline!([tolerance_array[7]], linestyle=:dash, color=:green, label="Target")
+    vline!([loops_array[7]], linestyle=:dash, color=:green, label="Target")
+end
