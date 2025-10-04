@@ -13,7 +13,7 @@ Objective : Define  the  Mesh Geomety
              computational nodes are assigned at the mid point
 """
 
-function generate_2Dmesh(L,H,n)
+function generate_2Dmesh(L,H,n,sx=1,sy=1)
     """
     # Arguments
     - `L::Float`: length of full cv
@@ -40,12 +40,27 @@ function generate_2Dmesh(L,H,n)
     points = Array{Array{Float64}}(undef,n,n)
 
     # create the CV grid >>> 
+    if sx == 1
+        #unifrom
+        x_array = range(0, L, n)  
+    else
+        # Geometric stretching
+        x_array = [L * (sx^(i-1) - 1) / (sx^(n-1) - 1) for i in 1:n]
+    end
+    
+    if sy == 1
+        #uniform
+        y_array = range(0, H, n) 
+    else
+        # Geometric stretching
+        y_array = [H * (sy^(j-1) - 1) / (sy^(n-1) - 1) for j in 1:n]
+    end
 
     x_array = range(0,L,n)
     y_array = range(0,H,n)
     for i = 1:n 
         for j = 1:n 
-            points[i,j] = [x_array[i],y_array[j] ,0]
+            points[i,j] = [x_array[i]*sx, y_array[j]*sy ,0]
         end
     end
     # now the points array consists of CV grids with initial temp

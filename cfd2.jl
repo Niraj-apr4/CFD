@@ -9,8 +9,10 @@ include("helper.jl")
 n = 30 
 L = 1 
 H = 0.5
+sx = 1
+sy = 2 
 
-mesh2 = generate_2Dmesh(L,H,n)
+mesh2 = generate_2Dmesh(L,H,n,sx,sy)
 nodes = mesh2[2]
 points = mesh2[1]
 
