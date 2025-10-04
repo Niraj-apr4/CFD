@@ -145,3 +145,66 @@ function calculate_B4_temp(P_node_loc)
     TempP = TempE - 5000 * delta_xPE/(k * Ae) 
 
 end
+
+function calculate_temp!(nodes)
+    # iterate only on B4(Newmann) and internal nodes
+    for i = 1:n-2 , j = 2:n-2 
+        current_node = nodes[i,j] 
+
+        if i == 1 # check for Boundary 4 
+            new_temp = calculate_B4_temp([i,j])
+
+        else # internal nodes 
+            new_temp = calculate_internal_temp([i,j])
+        end
+
+        # update the current node
+        current_node[3] = new_temp 
+    end
+end
+
+
+function experiment!(tolerance)
+    # needed global variables
+    global n
+
+    # n random nodes are selected from [1, n-1^2] nodes
+    test_nodes_id = rand(1:(n-1)^2 , n)
+
+    # initialize and undef array for comparison
+    init_nodes_temp = Array{Float64}(undef,n)  
+    updated_nodes_temp = Array{Float64}(undef,n)  
+
+    # setup the loop counter for plotting
+    loop_counter = 0 
+
+    while true  
+        ## before each iterations 
+        for i = 1:length(test_nodes_id) 
+            init_nodes_temp[i] = nodes[test_nodes_id[i]][3]
+        end
+
+        ###################
+        calculate_temp!(nodes)
+        ###################
+
+        # after iteration temp is updated
+        for i = 1:length(test_nodes_id) 
+            updated_nodes_temp[i] = nodes[test_nodes_id[i]][3]
+        end
+
+        test = abs(maximum((updated_nodes_temp -
+            init_nodes_temp).^2)) < tolerance
+
+        @show test
+
+        if  test
+            break
+        end
+
+        init_nodes_temp = updated_nodes_temp[:]
+        loop_counter += 1
+    end
+    @show loop_counter
+    loop_counter
+end
